@@ -106,6 +106,9 @@ instance (NFSerializable a, NFSerializable b) => NFData (Message a b) where
   rnf (CastMessage a) = rnf a `seq` ()
   rnf (CallMessage a b) = rnf a `seq` rnf b `seq` ()
   rnf (ChanMessage a b) = rnf a `seq` rnf b `seq` ()
+
+instance (NFSerializable a, NFSerializable b) => NFSerializable (Message a b)
+
 deriving instance (Eq a, Eq b) => Eq (Message a b)
 deriving instance (Show a, Show b) => Show (Message a b)
 
@@ -115,6 +118,10 @@ data CallResponse a = CallResponse a CallId
 instance Serializable a => Binary (CallResponse a)
 instance NFSerializable a => NFData (CallResponse a) where
   rnf (CallResponse a c) = rnf a `seq` rnf c `seq` ()
+
+instance NFSerializable a => NFSerializable (CallResponse a)
+
+
 deriving instance Eq a => Eq (CallResponse a)
 deriving instance Show a => Show (CallResponse a)
 
@@ -417,4 +424,3 @@ waitResponse mTimeout cRef =
     case mTimeout of
       (Just ti) -> finally (receiveTimeout (asTimeout ti) matchers) (unmonitor mRef)
       Nothing   -> finally (receiveWait matchers >>= return . Just) (unmonitor mRef)
-
